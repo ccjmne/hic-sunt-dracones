@@ -1,34 +1,8 @@
 use std::f32::consts::PI;
 use std::thread::sleep;
 use std::time::Duration;
-use std::{char, fmt, io};
-use std::fs::File;
-use std::io::{stdout, Read, Write};
-
-//fn at(lat: i16, long: i16, map: String, w: i16, h: i16) {
-//    let y = ( lat % 181 ) - 90;
-//    //let y = [-90, 90] => [lines-1, 0]
-//    println!("{}", y);
-//    println!("{}", map.chars().nth(lat.try_into().unwrap()).unwrap());
-//}
-
-//fn project(x: u16, y: u16) -> char {
-//    'x'
-//}
-
-struct Frustum {
-    _fov:  f32,
-    _ar:   f32,
-    _near: f32,
-    _far:  f32,
-}
-
-struct Camera {
-    _frustum:   Frustum,
-    _azimuth:   f32,
-    _elevation: f32,
-    _distance:  f32,
-}
+use std::{char, fmt};
+use std::io::{stdout, Write};
 
 struct Coords {
     lat:  f32,
@@ -132,57 +106,7 @@ impl Mul<f32> for Vec3 {
     }
 }
 
-//// The scene consists of a single sphere located around (0, 0), of radius 1.
-//fn perspective(_camera: &Camera) -> Option<Coords> {
-//    char::from_u32(0x2800 + random::<u8>() as u32).unwrap();
-//    return Some(Coords { lat: 0., long: 0. })
-//}
 
-// 
-// 
-// 
-// x^2 + y^2 + z^2 = 1
-// x^2 = 1 - y^2 - z^2
-// x = ±sqrt(1 - y^2 - z^2)
-//
-//
-// x0 + t*a = ±sqrt(1 - (y0 + t*b)^2 - (z0 + t*c)^2)
-//
-//
-// USE THIS ONE!!!!
-// (x0 + t*a)^2 + (y0 + t*b)^2 + (z0 + t*c)^2 = 1
-//
-// let's fix x0 and y0 to 0
-// (t*a)^2 + (t*b)^2 + (z0 + t*c)^2 = 1
-// t^2 * a^2 + t^2 * b^2 + (z0 + t * c)^2 = 1
-// t^2 (a^2 + b^2) + z0^2 + 2 * z0 * t * c + t^2*c^2 = 1
-// t^2 (a^2 + b^2 + c^2) + (2 * z0 * c) * t + (z0^2 - 1) = 0
-//
-// A = a^2 + b^2 + c^2
-// B = 2 * z0 * c
-// C = z0^2 - 1
-//
-// t = ( -B ± sqrt(B^2 - 4AC) ) / 2A
-// 
-// if (B^2 - 4AC) < 0, no solutions
-// if (B^2 - 4AC) = 0, one solution
-// if (B^2 - 4AC) > 0, two solutions
-// 
-// t = ( -(2 * z0 * c) ± sqrt((2 * z0 * c)^2 - 4*(a^2 + b^2 + c^2)*(z0^2 - 1)) ) / ( 2 * ( a^2 + b^2 + c^2 ) )
-// t = ( -(2 * z0 * c) ± sqrt(4[(z0 * c)^2 - (a^2 + b^2 + c^2)*(z0^2 - 1)]) ) / ( 2 * ( a^2 + b^2 + c^2 ) )
-// t = ( -2 * (z0 * c) ± 2 * sqrt((z0 * c)^2 - (a^2 + b^2 + c^2)*(z0^2 - 1)) ) / ( 2 * ( a^2 + b^2 + c^2 ) )
-//
-// t = ( -z0 * c ± sqrt((z0 * c)^2 - (a^2 + b^2 + c^2)*(z0^2 - 1)) ) / ( a^2 + b^2 + c^2 )
-//
-// 
-// Basically, if there exists a `t` that works, you're on the line.
-// (x-x0) / a = (y-y0) / b = (z-z0) / c
-//
-//
-//
-//
-// (x-x0) / a = (y-y0) / b = (z-z0) / c
-//
 fn isect(Vec3 { z: z0, .. }: Vec3, Vec3 { x: a, y: b, z: c }: Vec3) -> Option<Vec3> {
     // Equation of a sphere at (0, 0, 0) of radius 1
     // (x-x0)^2 + (y-y0)^2 + (z-z0)^2 = r^2
@@ -219,7 +143,6 @@ fn isect(Vec3 { z: z0, .. }: Vec3, Vec3 { x: a, y: b, z: c }: Vec3) -> Option<Ve
 }
 
 fn toGeometric(Vec3 { x, y, z }: Vec3) -> Coords {
-    //println!("toGeometric: {}", z);
     fn angle(x: f32, y: f32, dot_product: f32) -> f32 {
         //let magnitude_a = 1.0; // Magnitude of (0, -1) is 1
         let magnitude_b = (x * x + y * y).sqrt();
@@ -236,8 +159,6 @@ fn toGeometric(Vec3 { x, y, z }: Vec3) -> Coords {
 }
 
 fn texture3(coords: Coords, rot: f32, map: &String) -> char {
-    //println!("texture2: {}", coords);
-
     let long = ( ( coords.long + rot ) + ( PI * 2. ) ) % ( PI * 2. );
     //let long = coords.long;
     //let lat = ( coords.lat + rot ) % ( PI );
@@ -272,61 +193,10 @@ fn texture3(coords: Coords, rot: f32, map: &String) -> char {
     }
 }
 
-fn texture2(coords: Coords, rot: f32) -> char {
-    //println!("texture2: {}", coords);
-    let long = coords.long + rot;
-    if long % (PI / 6.) < 0.05 * PI / 12. {
-        char::from_u32(0x2800 + 0b1011_1000).unwrap()
-    } else if long % (PI / 6.) < 0.95 * PI / 12. {
-        '\u{28ff}'
-    } else if long % (PI / 6.) < PI / 12. {
-        char::from_u32(0x2800 + 0b0100_0111).unwrap()
-    } else {
-        '\u{2800}'
-    }
-}
-
-fn texture(coords: Option<Coords>) -> char {
-    match coords {
-        None => ' ',
-        Some(Coords { long, .. }) => 
-        if long % (PI / 6.) < 0.05 * PI / 12. {
-            char::from_u32(0x2800 + 0b1011_1000).unwrap()
-        } else if long % (PI / 6.) < 0.95 * PI / 12. {
-            '\u{28ff}'
-        } else if long % (PI / 6.) < PI / 12. {
-            char::from_u32(0x2800 + 0b0100_0111).unwrap()
-        } else {
-            '\u{2800}'
-        }
-    }
-}
-
 fn main() {
-    //let Ok(mut file) = File::open("./data/s") else { return };
-    //let mut contents = String::new();
-    //let _ = file.read_to_string(&mut contents);
-
     let contents: String = include_str!("../data/s").try_into().unwrap();
+    let w: u8 = contents[..contents.find('\n').unwrap()].chars().count() as u8;
 
-    //println!("{}", contents);
-    let mut w: u8 = contents[..contents.find('\n').unwrap()].chars().count() as u8;
-
-    //let camera = Camera {
-    //    _frustum: Frustum {
-    //        _fov:  PI / 2.,
-    //        //_fov:  90.0_f32.to_radians(),
-    //        _ar:   16. / 9.,
-    //        _near: 0.1,
-    //        _far:  100.,
-    //    },
-    //    _azimuth:   0.,
-    //    _elevation: PI / 4.,
-    //    //_elevation: 45.0_f32.to_radians(),
-    //    _distance:  2.,
-    //};
-
-    w *= 1;
     fn draw(w: u8, rot: f32, map: &String) -> Vec<u8> {
         let mut buffer = Vec::new();
         let wf = w as f32;
@@ -338,10 +208,10 @@ fn main() {
                     x: xf * 4./ wf - 2.,// [0, w[ -> [-2, +2[
                     y: yf * -2. / (wf/4.) + 1.,// [0, w/2[ -> [1, -1[
                     z: 1.0,
-                }).map(toGeometric).map_or(' ', |asdf| texture3(asdf, rot, map));
-                write!(buffer, "{}", pixel);
+                }).map(toGeometric).map_or(' ', |p| texture3(p, rot, map));
+                let _ = write!(buffer, "{}", pixel);
             }
-            write!(buffer, "\n");
+            let _ = write!(buffer, "\n");
         }
         buffer
     }
@@ -355,41 +225,4 @@ fn main() {
         sleep(Duration::from_millis(1000 / 60));
         print!("\r\x1B[{}A", buf.iter().filter(|&&c| c == b'\n').count());
     }
-
-    //let wf = w as f32;
-    //let xf = wf/2.;
-    //let yf = wf/4./2.;
-    //let pixel = isect(Vec3 {x: 0., y: 0., z: -3.}, Vec3 {
-    //    x: xf * 4./ wf - 2.,// [0, w[ -> [-2, +2[
-    //    y: yf * -2. / (wf/4.) + 1.,// [0, w/2[ -> [1, -1[
-    //    z: 1.,
-    //});
-    //if (pixel.is_some()) {
-    //    println!("{}", pixel.unwrap())
-    //} else {
-    //    println!("nope")
-    //}
-
-    // ]123456789012345123456789012345123456789012345612345678901234[
-    // ]###############[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]################[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]
-    // ]⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]
-    // ]⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]
-    // ]⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇[⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀]
-
-    //println!("{}", perspective(&camera).unwrap());
-    //for x in 0..w {
-    //    let long = x as f32 * 2. * PI / w as f32;
-    //    print!("{}", texture(Some(Coords { lat: 0., long: long })))
-    //}
-
-    
-    //loop {
-    //    for _ in 0..w {
-    //        print!("{}", char::from_u32(0x2800 + random::<u8>() as u32).unwrap());
-    //    }
-    //    std::thread::sleep(std::time::Duration::from_millis(1000 / w as u32));
-    //    print!("\n\r\x1B[1A");
-    //}
-
-    //at(0, 0, contents, w, w / 2);
 }
