@@ -37,7 +37,6 @@ impl Add for Vec3 {
         }
     }
 }
-
 impl Sub for Vec3 {
     type Output = Vec3;
 
@@ -49,7 +48,6 @@ impl Sub for Vec3 {
         }
     }
 }
-
 impl Mul<f32> for Vec3 {
     type Output = Vec3;
 
@@ -61,7 +59,6 @@ impl Mul<f32> for Vec3 {
         }
     }
 }
-
 
 fn isect(Vec3 { z: z0, .. }: Vec3, Vec3 { x: a, y: b, z: c }: Vec3) -> Option<Vec3> {
     // Equation of a sphere at (0, 0, 0) of radius 1
