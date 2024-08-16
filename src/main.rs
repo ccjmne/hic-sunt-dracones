@@ -3,6 +3,7 @@ use std::thread::sleep;
 use std::time::Duration;
 use std::{char, fmt};
 use std::io::{stdout, Write};
+use std::ops::{Add, Sub, Mul};
 
 struct Coords {
     lat:  f32,
@@ -25,9 +26,6 @@ impl fmt::Display for Vec3 {
         write!(f, "({}, {}, {})", self.x, self.y, self.z)
     }
 }
-
-use std::ops::{Add, Sub, Mul};
-
 impl Add for Vec3 {
     type Output = Vec3;
 
