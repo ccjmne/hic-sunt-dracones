@@ -350,7 +350,7 @@ fn main() {
         let buf = draw(w, rot, &contents);
         let _ = stdout().write(&buf);
         let _ = stdout().flush();
-        rot += PI / 30.;
+        rot += PI / 90.;
         sleep(Duration::from_millis(1000 / 60));
         print!("\r\x1B[{}A", buf.iter().filter(|&&c| c == b'\n').count());
     }
