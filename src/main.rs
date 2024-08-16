@@ -303,10 +303,11 @@ fn texture(coords: Option<Coords>) -> char {
 }
 
 fn main() {
-    let Ok(mut file) = File::open("./data/s") else { return };
+    //let Ok(mut file) = File::open("./data/s") else { return };
+    //let mut contents = String::new();
+    //let _ = file.read_to_string(&mut contents);
 
-    let mut contents = String::new();
-    let _ = file.read_to_string(&mut contents);
+    let contents: String = include_str!("../data/s").try_into().unwrap();
 
     //println!("{}", contents);
     let mut w: u8 = contents[..contents.find('\n').unwrap()].chars().count() as u8;
